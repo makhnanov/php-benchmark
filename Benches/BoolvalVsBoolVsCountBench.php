@@ -8,18 +8,18 @@ use App\Consumers\ArrayConsumer;
 
 class BoolvalVsBoolVsCountBench
 {
-    public function benchBelowNegation(): bool
-    {
-        $a1 = !ArrayConsumer::consumeEmpty() < 1;
-        $a2 = !ArrayConsumer::consumeNotEmpty() < 1;
-        return $a1 && $a2;
-    }
-
     public function benchBoolval(): bool
     {
         $consumer = new ArrayConsumer();
         $a1 = boolval($consumer->consumeEmpty());
         $a2 = boolval($consumer->consumeNotEmpty());
+        return $a1 && $a2;
+    }
+
+    public function benchBelowNegation(): bool
+    {
+        $a1 = !ArrayConsumer::consumeEmpty() < 1;
+        $a2 = !ArrayConsumer::consumeNotEmpty() < 1;
         return $a1 && $a2;
     }
 
