@@ -1,0 +1,53 @@
+#!/usr/bin/env php
+<?php
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Output\StreamOutput;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$output = new StreamOutput(fopen('php://stdout', 'w'));
+$stdErr = new StreamOutput(fopen('php://stderr', 'w'));
+
+if (!isset($argv[1])) {
+    $stdErr->writeln((new FormatterHelper())->formatBlock([
+        'First argument is missed!',
+        'Usage:',
+        'php create-bench FunctionOneVsFunctionTwo',
+    ], 'error'));
+    die(Command::FAILURE);
+}
+
+$benchName = $argv[1];
+
+$methods = <<<PHP
+    /**
+     * @Revs(30000)
+     * @Iterations(10)
+     */
+    public function benchJsonEncode(): 
+    {
+        return json_encode(ArrayConsumer::consumeArrayFour());
+    }
+PHP;
+
+$class = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace App\Benches;
+
+class JsonEncodeVsHttpBuildQueryBench
+{
+    $methods
+}
+PHP;
+
+$benchFile = fopen(__DIR__ . '/Benches/' . $benchName . 'Bench.php', 'x');
+fwrite($benchFile, $class);
+fclose($benchFile);
+
+// Test isset vs empty
+// sql exist vs sql count vs php count on laravel
